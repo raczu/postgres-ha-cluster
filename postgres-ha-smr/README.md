@@ -1,0 +1,1 @@
+# Single-Master Replication (SMR)
