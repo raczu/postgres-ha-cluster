@@ -1,0 +1,16 @@
+[project]
+name = "pgload"
+version = "0.1.0"
+description = ""
+authors = [{ name = "raczu", email = "Raczuekk@gmail.com" }]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["typer (>=0.15.2,<0.16.0)"]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[project.scripts]
+pgload = "pgload.cli:app"
