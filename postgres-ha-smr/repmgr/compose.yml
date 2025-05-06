@@ -1,68 +1,68 @@
 services:
-  pg-0:
+  pg0:
     image: docker.io/bitnami/postgresql-repmgr:17.4.0
     ports:
-      - "7000:5432"
+      - "5000:5432"
     networks:
         - pg-network
     volumes:
-      - pg-0-data:/bitnami/postgresql
-      - ./init-scripts/database:/docker-entrypoint-initdb.d
+      - pg0-data:/bitnami/postgresql
+      - ./init-scripts:/docker-entrypoint-initdb.d
     environment:
       - POSTGRESQL_POSTGRES_PASSWORD=postgres
       - POSTGRESQL_USERNAME=dba
       - POSTGRESQL_PASSWORD=sql
       - POSTGRESQL_DATABASE=ecommerce
       - POSTGRESQL_REPLICATION_MODE=master
-      - POSTGRESQL_CLUSTER_APP_NAME=pg-0
-      - REPMGR_PRIMARY_HOST=pg-0
-      - REPMGR_PARTNER_NODES=pg-2,pg-1,pg-0
-      - REPMGR_NODE_NAME=pg-0
-      - REPMGR_NODE_NETWORK_NAME=pg-0
+      - POSTGRESQL_CLUSTER_APP_NAME=pg0
+      - REPMGR_PRIMARY_HOST=pg0
+      - REPMGR_PARTNER_NODES=pg2,pg1,pg0
+      - REPMGR_NODE_NAME=pg0
+      - REPMGR_NODE_NETWORK_NAME=pg0
       - REPMGR_USERNAME=repmgr
       - REPMGR_PASSWORD=repmgr
 
-  pg-1:
+  pg1:
     image: docker.io/bitnami/postgresql-repmgr:17.4.0
     ports:
-      - "7001:5432"
+      - "5001:5432"
     networks:
       - pg-network
     volumes:
-      - pg-1-data:/bitnami/postgresql
+      - pg1-data:/bitnami/postgresql
     environment:
       - POSTGRESQL_POSTGRES_PASSWORD=postgres
       - POSTGRESQL_USERNAME=dba
       - POSTGRESQL_PASSWORD=sql
       - POSTGRESQL_DATABASE=ecommerce
       - POSTGRESQL_REPLICATION_MODE=slave
-      - POSTGRESQL_CLUSTER_APP_NAME=pg-1
-      - REPMGR_PRIMARY_HOST=pg-0
-      - REPMGR_PARTNER_NODES=pg-0,pg-2,pg-1
-      - REPMGR_NODE_NAME=pg-1
-      - REPMGR_NODE_NETWORK_NAME=pg-1
+      - POSTGRESQL_CLUSTER_APP_NAME=pg1
+      - REPMGR_PRIMARY_HOST=pg0
+      - REPMGR_PARTNER_NODES=pg0,pg2,pg1
+      - REPMGR_NODE_NAME=pg1
+      - REPMGR_NODE_NETWORK_NAME=pg1
       - REPMGR_USERNAME=repmgr
       - REPMGR_PASSWORD=repmgr
 
-  pg-2:
+  pg2:
     image: docker.io/bitnami/postgresql-repmgr:17.4.0
     ports:
-      - "7002:5432"
+      - "5002:5432"
     networks:
       - pg-network
     volumes:
-      - pg-2-data:/bitnami/postgresql
+      - pg2-data:/bitnami/postgresql
     environment:
       - POSTGRESQL_POSTGRES_PASSWORD=postgres
       - POSTGRESQL_USERNAME=dba
       - POSTGRESQL_PASSWORD=sql
       - POSTGRESQL_DATABASE=ecommerce
       - POSTGRESQL_REPLICATION_MODE=slave
-      - POSTGRESQL_CLUSTER_APP_NAME=pg-2
-      - REPMGR_PRIMARY_HOST=pg-0
-      - REPMGR_PARTNER_NODES=pg-0,pg-1,pg-2
-      - REPMGR_NODE_NAME=pg-2
-      - REPMGR_NODE_NETWORK_NAME=pg-2
+      - POSTGRESQL_CLUSTER_APP_NAME=pg2
+      - REPMGR_PRIMARY_HOST=pg0
+      - REPMGR_PARTNER_NODES=pg0,pg1,pg2
+      - REPMGR_NODE_NAME=pg2
+      - REPMGR_NODE_NETWORK_NAME=pg2
       - REPMGR_USERNAME=repmgr
       - REPMGR_PASSWORD=repmgr
 
@@ -73,8 +73,8 @@ services:
     networks:
       - pg-network
     environment:
-      - PGPOOL_BACKEND_NODES=0:pg-0:5432,1:pg-1:5432,2:pg-2:5432
-      - PGPOOL_BACKEND_APPLICATION_NAMES=pg-0,pg-1,pg-2
+      - PGPOOL_BACKEND_NODES=0:pg0:5432,1:pg1:5432,2:pg2:5432
+      - PGPOOL_BACKEND_APPLICATION_NAMES=pg0,pg1,pg2
       - PGPOOL_SR_CHECK_USER=repmgr
       - PGPOOL_SR_CHECK_PASSWORD=repmgr
       - PGPOOL_POSTGRES_USERNAME=postgres
@@ -94,12 +94,9 @@ services:
       retries: 5
 
 volumes:
-  pg-0-data:
-    driver: local
-  pg-1-data:
-    driver: local
-  pg-2-data:
-    driver: local
+  pg0-data:
+  pg1-data:
+  pg2-data:
 
 networks:
   pg-network:

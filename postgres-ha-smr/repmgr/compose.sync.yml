@@ -1,12 +1,12 @@
 services:
-  pg-0:
+  pg0:
     environment:
       - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
 
-  pg-1:
+  pg1:
     environment:
       - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
 
-  pg-2:
+  pg2:
     environment:
       - POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS=2
