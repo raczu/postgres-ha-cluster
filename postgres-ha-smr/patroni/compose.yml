@@ -16,10 +16,9 @@ services:
       - ETCD_INITIAL_CLUSTER_TOKEN=pgcluster
       - ETCD_INITIAL_CLUSTER=etcd=http://etcd:2380
       - ETCD_INITIAL_CLUSTER_STATE=new
-    command: []
 
-  pg0:
-    image: postgresql-patroni:17.4
+  pg-0:
+    image: pg:17.4-patroni
     build:
         context: .
         args:
@@ -27,20 +26,19 @@ services:
     networks:
       - pg-network
     volumes:
-      - pg0-data:/var/lib/postgresql/data
+      - pg-0-data:/var/lib/postgresql/data
     environment:
       - POSTGRESQL_USERNAME=dba
       - POSTGRESQL_PASSWORD=sql
-      - POSTGRESQL_DATABASE=ecommerce
-      - PG_PATRONI_NAME=pg0
+      - PG_PATRONI_NAME=pg-0
       - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
-      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=pg0:8008
+      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=pg-0:8008
       - PG_PATRONI_ETCD3_HOST=etcd:2379
       - PG_PATRONI_POSTGRESQL_LISTEN=0.0.0.0:5432
-      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=pg0:5432
+      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=pg-0:5432
 
-  pg1:
-    image: postgresql-patroni:17.4
+  pg-1:
+    image: pg:17.4-patroni
     build:
       context: .
       args:
@@ -48,20 +46,19 @@ services:
     networks:
       - pg-network
     volumes:
-      - pg1-data:/var/lib/postgresql/data
+      - pg-1-data:/var/lib/postgresql/data
     environment:
       - POSTGRESQL_USERNAME=dba
       - POSTGRESQL_PASSWORD=sql
-      - POSTGRESQL_DATABASE=ecommerce
-      - PG_PATRONI_NAME=pg1
+      - PG_PATRONI_NAME=pg-1
       - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
-      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=pg1:8008
+      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=pg-1:8008
       - PG_PATRONI_ETCD3_HOST=etcd:2379
       - PG_PATRONI_POSTGRESQL_LISTEN=0.0.0.0:5432
-      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=pg1:5432
+      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=pg-1:5432
 
-  pg2:
-    image: postgresql-patroni:17.4
+  pg-2:
+    image: pg:17.4-patroni
     build:
       context: .
       args:
@@ -69,17 +66,16 @@ services:
     networks:
       - pg-network
     volumes:
-      - pg2-data:/var/lib/postgresql/data
+      - pg-2-data:/var/lib/postgresql/data
     environment:
       - POSTGRESQL_USERNAME=dba
       - POSTGRESQL_PASSWORD=sql
-      - POSTGRESQL_DATABASE=ecommerce
-      - PG_PATRONI_NAME=pg2
+      - PG_PATRONI_NAME=pg-2
       - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
-      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=pg2:8008
+      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=pg-2:8008
       - PG_PATRONI_ETCD3_HOST=etcd:2379
       - PG_PATRONI_POSTGRESQL_LISTEN=0.0.0.0:5432
-      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=pg2:5432
+      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=pg-2:5432
 
   haproxy:
     image: docker.io/bitnami/haproxy:3.1.7
@@ -94,9 +90,9 @@ services:
 
 volumes:
   etcd-data:
-  pg0-data:
-  pg1-data:
-  pg2-data:
+  pg-0-data:
+  pg-1-data:
+  pg-2-data:
 
 networks:
   pg-network:

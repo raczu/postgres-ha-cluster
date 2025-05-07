@@ -15,13 +15,14 @@ CREATE TABLE IF NOT EXISTS ecommerce.products (
     quantity INTEGER NOT NULL,
     store_id UUID NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    FOREIGN KEY (store_id) REFERENCES ecommerce.stores (store_id)
 );
 
 CREATE TABLE IF NOT EXISTS ecommerce.purchases (
     purchase_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id UUID NOT NULL,
-    store_id UUID NOT NULL,
     price NUMERIC(10, 2) NOT NULL,
-    purchased_at TIMESTAMPTZ DEFAULT NOW()
+    purchased_at TIMESTAMPTZ DEFAULT NOW(),
+    FOREIGN KEY (product_id) REFERENCES ecommerce.products (product_id)
 );
