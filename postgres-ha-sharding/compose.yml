@@ -1,0 +1,173 @@
+services:
+  etcd:
+    image: docker.io/bitnami/etcd:3.5.21
+    networks:
+      - pg-network
+    volumes:
+        - etcd-data:/etcd-data
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_NAME=etcd
+      - ETCD_DATA_DIR=/etcd-data
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd:2380
+      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
+      - ETCD_INITIAL_CLUSTER_TOKEN=pgcluster
+      - ETCD_INITIAL_CLUSTER=etcd=http://etcd:2380
+      - ETCD_INITIAL_CLUSTER_STATE=new
+
+  coord-0:
+    build:
+      context: .
+      args:
+        - PG_VERSION=17.4
+        - CITUS_VERSION=13.0.3
+    networks:
+      - pg-network
+    volumes:
+      - coord-0-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRESQL_USERNAME=dba
+      - POSTGRESQL_PASSWORD=sql
+      - PG_PATRONI_CITUS_GROUP=0
+      - PG_PATRONI_CITUS_DATABASE=ecommerce
+      - PG_PATRONI_NAME=coord-0
+      - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
+      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=coord-0:8008
+      - PG_PATRONI_ETCD3_HOST=etcd:2379
+      - PG_PATRONI_POSTGRESQL_LISTEN=0.0.0.0:5432
+      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=coord-0:5432
+
+  coord-1:
+    build:
+      context: .
+      args:
+        - PG_VERSION=17.4
+        - CITUS_VERSION=13.0.3
+    networks:
+      - pg-network
+    volumes:
+      - coord-1-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRESQL_USERNAME=dba
+      - POSTGRESQL_PASSWORD=sql
+      - PG_PATRONI_CITUS_GROUP=0
+      - PG_PATRONI_CITUS_DATABASE=ecommerce
+      - PG_PATRONI_NAME=coord-1
+      - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
+      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=coord-0:8008
+      - PG_PATRONI_ETCD3_HOST=etcd:2379
+      - PG_PATRONI_POSTGRESQL_LISTEN=0.0.0.0:5432
+      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=coord-1:5432
+
+  worker-00:
+    build:
+      context: .
+      args:
+        - PG_VERSION=17.4
+        - CITUS_VERSION=13.0.3
+    networks:
+      - pg-network
+    volumes:
+      - worker-00-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRESQL_USERNAME=dba
+      - POSTGRESQL_PASSWORD=sql
+      - PG_PATRONI_CITUS_GROUP=1
+      - PG_PATRONI_CITUS_DATABASE=ecommerce
+      - PG_PATRONI_NAME=worker-00
+      - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
+      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=worker-00:8008
+      - PG_PATRONI_ETCD3_HOST=etcd:2379
+      - PG_PATRONI_POSTGRESQL_LISTEN=0.0.0.0:5432
+      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=worker-00:5432
+
+  worker-01:
+    build:
+      context: .
+      args:
+        - PG_VERSION=17.4
+        - CITUS_VERSION=13.0.3
+    networks:
+      - pg-network
+    volumes:
+      - worker-01-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRESQL_USERNAME=dba
+      - POSTGRESQL_PASSWORD=sql
+      - PG_PATRONI_CITUS_GROUP=1
+      - PG_PATRONI_CITUS_DATABASE=ecommerce
+      - PG_PATRONI_NAME=worker-01
+      - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
+      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=worker-01:8008
+      - PG_PATRONI_ETCD3_HOST=etcd:2379
+      - PG_PATRONI_POSTGRESQL_LISTEN=0.0.0.0:5432
+      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=worker-01:5432
+
+  worker-10:
+    build:
+      context: .
+      args:
+        - PG_VERSION=17.4
+        - CITUS_VERSION=13.0.3
+    networks:
+      - pg-network
+    volumes:
+      - worker-10-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRESQL_USERNAME=dba
+      - POSTGRESQL_PASSWORD=sql
+      - PG_PATRONI_CITUS_GROUP=2
+      - PG_PATRONI_CITUS_DATABASE=ecommerce
+      - PG_PATRONI_NAME=worker-10
+      - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
+      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=worker-10:8008
+      - PG_PATRONI_ETCD3_HOST=etcd:2379
+      - PG_PATRONI_POSTGRESQL_LISTEN=0.0.0.0:5432
+      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=worker-10:5432
+
+  worker-11:
+    build:
+      context: .
+      args:
+        - PG_VERSION=17.4
+        - CITUS_VERSION=13.0.3
+    networks:
+      - pg-network
+    volumes:
+      - worker-11-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRESQL_USERNAME=dba
+      - POSTGRESQL_PASSWORD=sql
+      - PG_PATRONI_CITUS_GROUP=2
+      - PG_PATRONI_CITUS_DATABASE=ecommerce
+      - PG_PATRONI_NAME=worker-11
+      - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
+      - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=worker-11:8008
+      - PG_PATRONI_ETCD3_HOST=etcd:2379
+      - PG_PATRONI_POSTGRESQL_LISTEN=0.0.0.0:5432
+      - PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS=worker-11:5432
+
+  haproxy:
+    image: docker.io/bitnami/haproxy:3.1.7
+    ports:
+      - "5432:5000"
+      - "7000:7000"
+    networks:
+      - pg-network
+    volumes:
+      - ./haproxy.cfg:/bitnami/haproxy/conf/haproxy.cfg
+
+volumes:
+  etcd-data:
+  coord-0-data:
+  coord-1-data:
+  worker-00-data:
+  worker-01-data:
+  worker-10-data:
+  worker-11-data:
+
+networks:
+  pg-network:
+    driver: bridge

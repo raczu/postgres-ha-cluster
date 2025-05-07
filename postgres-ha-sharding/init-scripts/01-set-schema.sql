@@ -1,0 +1,1 @@
+ALTER ROLE dba SET search_path TO ecommerce, public;
