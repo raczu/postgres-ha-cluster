@@ -1,18 +1,11 @@
 import typer
-import importlib.metadata
 
-from pgload.commands.generate import generate
+from pgload.commands.benchmark import app as benchmark_app
+from pgload.commands.initialize import app as initialize_app
 
 app = typer.Typer()
-app.command(
-    name="generate",
-    help="Generate a load for postgres high availability cluster.",
-)(generate)
-
-
-@app.command(help="Show the version of pgload.")
-def version() -> None:
-    typer.echo(f"pgload {importlib.metadata.version("pgload")}")
+app.add_typer(initialize_app, name="init")
+app.add_typer(benchmark_app, name="benchmark")
 
 
 if __name__ == "__main__":

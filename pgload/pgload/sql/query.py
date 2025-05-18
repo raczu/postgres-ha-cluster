@@ -1,0 +1,58 @@
+from dataclasses import dataclass
+from enum import StrEnum
+from typing import Any, Callable
+
+
+class QueryType(StrEnum):
+    READ = "READ"
+    WRITE = "WRITE"
+    MIXED = "MIXED"
+
+
+@dataclass
+class Query:
+    callable: Callable[..., Any]
+    type: QueryType
+    tags: list[str] | None = None
+
+    def __call__(self, conn: Any, **kwargs: Any) -> Any:
+        """
+        Call the query with the given connection and arguments.
+
+        Args:
+            conn: psycopg2 connection to database.
+            **kwargs: Additional arguments to pass to the query.
+
+        Returns:
+            Any result from the query execution based on the callable.
+        """
+        return self.callable(conn, **kwargs)
+
+
+@dataclass
+class ReadQuery(Query):
+    type: QueryType = QueryType.READ
+
+
+@dataclass
+class WriteQuery(Query):
+    type: QueryType = QueryType.WRITE
+
+
+class Queries:
+    __root__: list[Query] = []
+
+    def all(self) -> list[Query]:
+        return self.__root__
+
+    def filter(
+        self, type: QueryType, tags: str | list[str] | None = None
+    ) -> list[Query]:
+        if tags is not None and not isinstance(tags, list):
+            tags = [tags]
+        return [
+            query
+            for query in self.__root__
+            if query.type == type
+            and (tags is None or all(tag in query.tags for tag in tags))
+        ]
