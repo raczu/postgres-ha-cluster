@@ -41,5 +41,6 @@ def pgtransaction(conn: Any) -> Generator:
             yield cur
             conn.commit()
         except psycopg2.DatabaseError as exc:
-            conn.rollback()
+            if not conn.closed:
+                conn.rollback()
             raise exc

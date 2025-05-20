@@ -33,8 +33,8 @@ class SQLWorker(threading.Thread):
         )
         for attempt in r:
             with attempt:
-                with pgconnection(self._dsn) as conn:
-                    while not self._stop_event.is_set():
+                while not self._stop_event.is_set():
+                    with pgconnection(self._dsn) as conn:
                         query = random.choice(self._queries)
                         _ = query(conn)
                         time.sleep(random.uniform(0.5, 2.0))
