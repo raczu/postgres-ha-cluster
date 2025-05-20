@@ -45,15 +45,19 @@ def database(
 
     with pgconnection(dsn) as conn:
         if force:
-            queries.filter(type=QueryType.WRITE, tags=["database", "drop"])[0](conn)
-        queries.filter(type=QueryType.WRITE, tags=["database", "init"])[0](conn)
+            queries.filter(type=QueryType.WRITE, tags=["database", "drop"])[0](
+                conn=conn, metrics=False
+            )
+        queries.filter(type=QueryType.WRITE, tags=["database", "init"])[0](
+            conn=conn, metrics=False
+        )
         if with_test_data:
             typer.secho(
                 "Including test data in the database. This may take a while.",
                 fg=typer.colors.YELLOW,
             )
             queries.filter(type=QueryType.WRITE, tags=["fulfill", "testdata"])[0](
-                conn=conn, scale=scale, seed=seed
+                conn=conn, metrics=False, scale=scale, seed=seed
             )
             typer.echo(
                 f"Included test data in database with scale factor: "

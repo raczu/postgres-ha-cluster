@@ -1,18 +1,20 @@
-from contextlib import contextmanager
 from enum import StrEnum
-from typing import Any, Generator
-from urllib.parse import urlparse
 
-import psycopg2
-
+from pgload.sql.utils import pgconnection
 from pgload.sql.queries import (
     CREATE_CITUS_SHARDING_DATABASE,
+    CREATE_NEW_STORE,
     CREATE_SMR_DATABASE,
     DROP_DATABASE,
+    GET_PRODUCTS_WITH_HIGH_PURCHASE_AND_LOW_STOCK,
+    GET_TOP_5_STORES_BY_TOTAL_PURCHASE_VALUE,
     INSERT_TEST_DATA_FOR_SHARDING,
     INSERT_TEST_DATA_FOR_SMR,
+    REGISTER_PURCHASE_FOR_RANDOM_PRODUCT,
+    UPDATE_RANDOM_PRODUCT_QUANTITY,
 )
 from pgload.sql.query import Queries, Query, QueryType
+from pgload.sql.worker import SQLWorker
 
 __all__ = [
     "pgconnection",
@@ -23,36 +25,8 @@ __all__ = [
     "SMRQueries",
     "ShardingQueries",
     "QUERIES_BASED_ON_CLUSTER_MODE",
+    "SQLWorker",
 ]
-
-
-@contextmanager
-def pgconnection(dsn: str, **kwargs: Any) -> Generator:
-    """Context manager for psycopg2 connection.
-
-    Args:
-        dsn: DSN (URI format) for the database connection.
-        **kwargs: Additional arguments to pass to the connection.
-    """
-    parsed = urlparse(dsn)
-    params = {
-        "dbname": parsed.path[1:] if parsed.path else None,
-        "user": parsed.username,
-        "password": parsed.password,
-        "host": parsed.hostname,
-        "port": parsed.port,
-    }
-    params.update(kwargs)
-    conn = psycopg2.connect(**params)
-    try:
-        yield conn
-    except psycopg2.DatabaseError as exc:
-        conn.rollback()
-        raise exc
-    else:
-        conn.commit()
-    finally:
-        conn.close()
 
 
 class ClusterMode(StrEnum):
@@ -65,6 +39,11 @@ class SMRQueries(Queries):
         DROP_DATABASE,
         CREATE_SMR_DATABASE,
         INSERT_TEST_DATA_FOR_SMR,
+        GET_TOP_5_STORES_BY_TOTAL_PURCHASE_VALUE,
+        GET_PRODUCTS_WITH_HIGH_PURCHASE_AND_LOW_STOCK,
+        CREATE_NEW_STORE,
+        UPDATE_RANDOM_PRODUCT_QUANTITY,
+        REGISTER_PURCHASE_FOR_RANDOM_PRODUCT,
     ]
 
 
@@ -73,6 +52,11 @@ class ShardingQueries(Queries):
         DROP_DATABASE,
         CREATE_CITUS_SHARDING_DATABASE,
         INSERT_TEST_DATA_FOR_SHARDING,
+        GET_TOP_5_STORES_BY_TOTAL_PURCHASE_VALUE,
+        GET_PRODUCTS_WITH_HIGH_PURCHASE_AND_LOW_STOCK,
+        CREATE_NEW_STORE,
+        UPDATE_RANDOM_PRODUCT_QUANTITY,
+        REGISTER_PURCHASE_FOR_RANDOM_PRODUCT,
     ]
 
 

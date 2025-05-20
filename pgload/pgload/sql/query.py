@@ -2,6 +2,10 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, Callable
 
+import psycopg2
+
+from pgload.metrics import QUERY_COUNTER, QUERY_DURATION, QUERY_ERROR_COUNTER
+
 
 class QueryType(StrEnum):
     READ = "READ"
@@ -15,18 +19,30 @@ class Query:
     type: QueryType
     tags: list[str] | None = None
 
-    def __call__(self, conn: Any, **kwargs: Any) -> Any:
+    def __call__(self, conn: Any, metrics: bool = True, **kwargs: Any) -> Any:
         """
         Call the query with the given connection and arguments.
 
         Args:
             conn: psycopg2 connection to database.
+            metrics: Whether to collect metrics for the query execution.
             **kwargs: Additional arguments to pass to the query.
 
         Returns:
             Any result from the query execution based on the callable.
         """
-        return self.callable(conn, **kwargs)
+        if metrics:
+            label = self.type.lower()
+            QUERY_COUNTER.labels(label).inc()
+            with QUERY_DURATION.labels(label).time():
+                try:
+                    result = self.callable(conn, **kwargs)
+                    return result
+                except psycopg2.DatabaseError as exc:
+                    QUERY_ERROR_COUNTER.labels(label).inc()
+                    raise exc
+        else:
+            return self.callable(conn, **kwargs)
 
 
 @dataclass
@@ -37,6 +53,11 @@ class ReadQuery(Query):
 @dataclass
 class WriteQuery(Query):
     type: QueryType = QueryType.WRITE
+
+
+@dataclass
+class MixedQuery(Query):
+    type: QueryType = QueryType.MIXED
 
 
 class Queries:
