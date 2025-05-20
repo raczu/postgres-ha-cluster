@@ -35,8 +35,11 @@ RUN set -ex \
 # Expose the ports for PostgreSQL and Patroni
 EXPOSE 5432 8008
 
-COPY entrypoint.sh /
+COPY run.sh /
+RUN chmod +x /run.sh \
+    && chown postgres:postgres /run.sh \
+    && chown -R postgres:postgres /opt/patroni
 
 USER postgres
 
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+CMD ["/bin/bash", "/run.sh"]

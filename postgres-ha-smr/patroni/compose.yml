@@ -29,6 +29,7 @@ services:
     environment:
       - POSTGRESQL_USERNAME=dba
       - POSTGRESQL_PASSWORD=sql
+      - POSTGRESQL_DATABASE=ecommerce
       - PG_PATRONI_NAME=pg-0
       - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
       - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=pg-0:8008
@@ -48,6 +49,7 @@ services:
     environment:
       - POSTGRESQL_USERNAME=dba
       - POSTGRESQL_PASSWORD=sql
+      - POSTGRESQL_DATABASE=ecommerce
       - PG_PATRONI_NAME=pg-1
       - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
       - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=pg-1:8008
@@ -67,6 +69,7 @@ services:
     environment:
       - POSTGRESQL_USERNAME=dba
       - POSTGRESQL_PASSWORD=sql
+      - POSTGRESQL_DATABASE=ecommerce
       - PG_PATRONI_NAME=pg-2
       - PG_PATRONI_RESTAPI_LISTEN=0.0.0.0:8008
       - PG_PATRONI_RESTAPI_CONNECT_ADDRESS=pg-2:8008

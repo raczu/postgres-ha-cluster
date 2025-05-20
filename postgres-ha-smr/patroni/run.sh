@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat << EOF > /var/lib/postgresql/data/patroni.yml
+cat << EOF > /opt/patroni/patroni.yml
 scope: postgres
 name: ${PG_PATRONI_NAME}
 restapi:
@@ -8,9 +8,6 @@ restapi:
   connect_address: ${PG_PATRONI_RESTAPI_CONNECT_ADDRESS}
 etcd3:
   host: ${PG_PATRONI_ETCD3_HOST}
-citus:
-  group: ${PG_PATRONI_CITUS_GROUP}
-  database: ${PG_PATRONI_CITUS_DATABASE}
 bootstrap:
   dcs:
     ttl: 30
@@ -26,6 +23,7 @@ bootstrap:
   pg_hba:
     - host replication replicator 0.0.0.0/0 md5
     - host all all 0.0.0.0/0 md5
+  post_init: /opt/patroni/init-db.sh
 postgresql:
   listen: ${PG_PATRONI_POSTGRESQL_LISTEN}
   connect_address: ${PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS}
@@ -39,4 +37,12 @@ postgresql:
       password: ${POSTGRESQL_PASSWORD}
 EOF
 
-patroni /var/lib/postgresql/data/patroni.yml
+cat << EOF > /opt/patroni/init-db.sh
+#!/bin/bash
+set -e
+
+psql -d "\$1" -c "CREATE DATABASE ${POSTGRESQL_DATABASE};"
+EOF
+
+chmod +x /opt/patroni/init-db.sh
+patroni /opt/patroni/patroni.yml

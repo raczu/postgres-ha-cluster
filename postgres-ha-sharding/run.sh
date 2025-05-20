@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat << EOF > /var/lib/postgresql/data/patroni.yml
+cat << EOF > /opt/patroni/patroni.yml
 scope: postgres
 name: ${PG_PATRONI_NAME}
 restapi:
@@ -8,6 +8,9 @@ restapi:
   connect_address: ${PG_PATRONI_RESTAPI_CONNECT_ADDRESS}
 etcd3:
   host: ${PG_PATRONI_ETCD3_HOST}
+citus:
+  group: ${PG_PATRONI_CITUS_GROUP}
+  database: ${PG_PATRONI_CITUS_DATABASE}
 bootstrap:
   dcs:
     ttl: 30
@@ -36,4 +39,4 @@ postgresql:
       password: ${POSTGRESQL_PASSWORD}
 EOF
 
-patroni /var/lib/postgresql/data/patroni.yml
+patroni /opt/patroni/patroni.yml
