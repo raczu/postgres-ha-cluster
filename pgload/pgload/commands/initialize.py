@@ -19,16 +19,12 @@ MODE: ClusterMode = typer.Option(
 WRITE_DSN: str = typer.Option(
     ..., "--write-dsn", help="Write connection string (URI format) for the database."
 )
-FORCE: bool = typer.Option(
-    False, "--force", help="Drop existing database and create a new one."
-)
+FORCE: bool = typer.Option(False, "--force", help="Drop existing database and create a new one.")
 WITH_TEST_DATA: bool = typer.Option(
     False, "--with-test-data", help="Include test data in the database initialization."
 )
 SCALE: int = typer.Option(1, "--scale", help="Scale factor for the test data size.")
-SEED: int | None = typer.Option(
-    None, "--seed", help="Seed for the fake data generator."
-)
+SEED: int | None = typer.Option(None, "--seed", help="Seed for the fake data generator.")
 
 
 @app.command(help="Initialize the database with or without test data.")
@@ -48,9 +44,7 @@ def database(
             queries.filter(type=QueryType.WRITE, tags=["database", "drop"])[0](
                 conn=conn, metrics=False
             )
-        queries.filter(type=QueryType.WRITE, tags=["database", "init"])[0](
-            conn=conn, metrics=False
-        )
+        queries.filter(type=QueryType.WRITE, tags=["database", "init"])[0](conn=conn, metrics=False)
         if with_test_data:
             typer.secho(
                 "Including test data in the database. This may take a while.",

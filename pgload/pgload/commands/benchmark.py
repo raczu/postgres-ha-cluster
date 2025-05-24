@@ -71,13 +71,9 @@ def run(
     metrics_port: int = METRICS_SERVER_PORT,
 ) -> None:
     if not write_dsn or not read_dsn:
-        typer.BadParameter(
-            "At least one of --write-dsn or --read-dsn must be provided."
-        )
+        typer.BadParameter("At least one of --write-dsn or --read-dsn must be provided.")
     if write_clients > clients:
-        raise typer.BadParameter(
-            "Number of write clients cannot exceed total number of clients."
-        )
+        raise typer.BadParameter("Number of write clients cannot exceed total number of clients.")
 
     stop_event = threading.Event()
     signal.signal(signal.SIGINT, lambda signum, frame: stop_event.set())
@@ -123,9 +119,7 @@ def run(
             break
 
         if not all(worker.is_alive() for worker in workers):
-            typer.secho(
-                "One or more workers have stopped unexpectedly.", fg=typer.colors.RED
-            )
+            typer.secho("One or more workers have stopped unexpectedly.", fg=typer.colors.RED)
             typer.secho("Stopping benchmark...", fg=typer.colors.YELLOW)
             stop_event.set()
         time.sleep(0.1)

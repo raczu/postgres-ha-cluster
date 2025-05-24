@@ -1,6 +1,5 @@
 from enum import StrEnum
 
-from pgload.sql.utils import pgconnection
 from pgload.sql.queries import (
     CREATE_CITUS_SHARDING_DATABASE,
     CREATE_NEW_STORE,
@@ -14,6 +13,7 @@ from pgload.sql.queries import (
     UPDATE_RANDOM_PRODUCT_QUANTITY,
 )
 from pgload.sql.query import Queries, Query, QueryType
+from pgload.sql.utils import pgconnection
 from pgload.sql.worker import SQLWorker
 
 __all__ = [

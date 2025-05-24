@@ -66,14 +66,11 @@ class Queries:
     def all(self) -> list[Query]:
         return self.__root__
 
-    def filter(
-        self, type: QueryType, tags: str | list[str] | None = None
-    ) -> list[Query]:
+    def filter(self, type: QueryType, tags: str | list[str] | None = None) -> list[Query]:
         if tags is not None and not isinstance(tags, list):
             tags = [tags]
         return [
             query
             for query in self.__root__
-            if query.type == type
-            and (tags is None or all(tag in query.tags for tag in tags))
+            if query.type == type and (tags is None or all(tag in query.tags for tag in tags))
         ]

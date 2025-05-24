@@ -117,9 +117,7 @@ def insert_test_data_for_smr(conn: Any, scale: int, seed: int) -> None:
                     product_id=fake.uuid4(),
                     name=fake.unique.bothify("P##??"),
                     description=fake.sentence(),
-                    price=round(
-                        fake.pyfloat(left_digits=3, right_digits=2, positive=True), 2
-                    ),
+                    price=round(fake.pyfloat(left_digits=3, right_digits=2, positive=True), 2),
                     quantity=fake.random_int(min=1, max=100),
                     store_id=store.store_id,
                     created_at=fake.date_time_this_year(before_now=True),
@@ -154,9 +152,7 @@ def insert_test_data_for_smr(conn: Any, scale: int, seed: int) -> None:
                             fake.pyfloat(left_digits=3, right_digits=2, positive=True),
                             2,
                         ),
-                        purchased_at=fake.date_time_between(
-                            start_date="-30d", end_date="now"
-                        ),
+                        purchased_at=fake.date_time_between(start_date="-30d", end_date="now"),
                     )
                     for _ in range(100 * scale)
                 ]
@@ -196,9 +192,7 @@ def insert_test_data_for_sharding(conn: Any, scale: int, seed: int) -> None:
                     product_id=fake.uuid4(),
                     name=fake.unique.bothify("P##??"),
                     description=fake.sentence(),
-                    price=round(
-                        fake.pyfloat(left_digits=3, right_digits=2, positive=True), 2
-                    ),
+                    price=round(fake.pyfloat(left_digits=3, right_digits=2, positive=True), 2),
                     quantity=fake.random_int(min=1, max=100),
                     store_id=store.store_id,
                     created_at=fake.date_time_this_year(before_now=True),
@@ -234,9 +228,7 @@ def insert_test_data_for_sharding(conn: Any, scale: int, seed: int) -> None:
                             fake.pyfloat(left_digits=3, right_digits=2, positive=True),
                             2,
                         ),
-                        purchased_at=fake.date_time_between(
-                            start_date="-30d", end_date="now"
-                        ),
+                        purchased_at=fake.date_time_between(start_date="-30d", end_date="now"),
                     )
                     for _ in range(100 * scale)
                 ]

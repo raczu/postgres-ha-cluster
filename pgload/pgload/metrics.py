@@ -6,9 +6,7 @@ QUERY_ERROR_COUNTER = Counter(
     ["type"],
 )
 
-QUERY_COUNTER = Counter(
-    "pgload_query_total", "Total number of queries executed", ["type"]
-)
+QUERY_COUNTER = Counter("pgload_query_total", "Total number of queries executed", ["type"])
 
 QUERY_DURATION = Histogram(
     "pgload_query_duration_seconds",

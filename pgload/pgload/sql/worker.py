@@ -11,14 +11,12 @@ from tenacity import (
     wait_exponential,
 )
 
-from pgload.sql.utils import pgconnection
 from pgload.sql.query import Query
+from pgload.sql.utils import pgconnection
 
 
 class SQLWorker(threading.Thread):
-    def __init__(
-        self, dsn: str, queries: list[Query], stop_event: threading.Event
-    ) -> None:
+    def __init__(self, dsn: str, queries: list[Query], stop_event: threading.Event) -> None:
         super().__init__()
         self._dsn: str = dsn
         self._queries: list[Query] = queries

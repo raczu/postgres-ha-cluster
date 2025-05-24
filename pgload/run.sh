@@ -1,5 +1,12 @@
 #!/bin/bash
 
+PGLOAD_WRITE_DSN="${PGLOAD_WRITE_DSN:-PGLOAD_RED_DSN}"
+
+until pgload health check --dsn "${PGLOAD_WRITE_DSN} ${PGLOAD_READ_DSN}" > /dev/null; do
+  echo "Waiting for all nodes to be healthy..."
+  sleep 1
+done
+
 pgload init benchmark \
   --mode "${PGLOAD_MODE:-"replication"}" \
   --write-dsn "${PGLOAD_WRITE_DSN}" \
