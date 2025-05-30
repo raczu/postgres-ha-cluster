@@ -26,7 +26,7 @@ class SQLWorker(threading.Thread):
         while not self._stop_event.is_set():
             query = next(self._queries)
             r = Retrying(
-                stop=stop_when_event_set(self._stop_event) | stop_after_delay(15),
+                stop=stop_when_event_set(self._stop_event),
                 wait=wait_fixed(0.2),
                 retry=retry_if_exception_type(psycopg2.DatabaseError),
                 reraise=True,

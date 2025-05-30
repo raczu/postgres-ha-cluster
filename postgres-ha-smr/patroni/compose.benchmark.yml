@@ -1,44 +1,4 @@
 services:
-  pg-0:
-    deploy:
-        resources:
-          limits:
-            cpus: "2.0"
-            memory: 2G
-          reservations:
-            cpus: "1.0"
-            memory: 1G
-
-  pg-1:
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 2G
-        reservations:
-          cpus: "1.0"
-          memory: 1G
-
-  pg-2:
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 2G
-        reservations:
-          cpus: "1.0"
-          memory: 1G
-
-  pg-3:
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 2G
-        reservations:
-          cpus: "1.0"
-          memory: 1G
-
   prometheus:
     image: docker.io/prom/prometheus:v3.4.0
     ports:
