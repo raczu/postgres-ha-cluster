@@ -1,8 +1,6 @@
 services:
   pg-0:
     image: docker.io/bitnami/postgresql-repmgr:17.4.0
-    ports:
-      - "5003:5432"
     networks:
         - pg-network
     volumes:
@@ -23,8 +21,6 @@ services:
 
   pg-1:
     image: docker.io/bitnami/postgresql-repmgr:17.4.0
-    ports:
-      - "5001:5432"
     networks:
       - pg-network
     volumes:
@@ -45,8 +41,6 @@ services:
 
   pg-2:
     image: docker.io/bitnami/postgresql-repmgr:17.4.0
-    ports:
-      - "5002:5432"
     networks:
       - pg-network
     volumes:
@@ -70,7 +64,7 @@ services:
     networks:
       - pg-network
     volumes:
-      - pg-2-data:/bitnami/postgresql
+      - pg-3-data:/bitnami/postgresql
     environment:
       - POSTGRESQL_POSTGRES_PASSWORD=postgres
       - POSTGRESQL_USERNAME=dba
