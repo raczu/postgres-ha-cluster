@@ -75,7 +75,6 @@ services:
       - PGLOAD_READ_DSN=postgresql://dba:sql@haproxy:5001/ecommerce
       - PGLOAD_SCALE=6
       - PGLOAD_CLIENTS=32
-      - PGLOAD_WRITE_CLIENTS=4
 
 volumes:
   prom-data:

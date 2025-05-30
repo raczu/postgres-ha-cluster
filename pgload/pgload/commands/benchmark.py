@@ -77,9 +77,9 @@ def run(
 
     if read_dsn:
         manager.add(
-            dsn=write_dsn,
-            queries=queries.filter(type=QueryType.WRITE, tags=["benchmark"]),
-            num=write_clients,
+            dsn=read_dsn,
+            queries=queries.filter(type=QueryType.READ, tags=["benchmark"]),
+            num=clients - write_clients,
         )
 
     typer.secho(
@@ -99,9 +99,9 @@ def run(
 
         if not manager.all_alive():
             typer.secho("One or more workers have stopped unexpectedly.", fg=typer.colors.RED)
-            typer.secho("Stopping benchmark...", fg=typer.colors.YELLOW)
             stop_event.set()
         time.sleep(0.1)
 
+    typer.secho("Stopping benchmark...", fg=typer.colors.YELLOW)
     manager.stop()
     typer.secho("Benchmark completed.", fg=typer.colors.GREEN)

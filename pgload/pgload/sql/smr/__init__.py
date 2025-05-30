@@ -7,6 +7,7 @@ from pgload.sql.smr.queries import (
     GET_RANDOM_PURCHASE,
     GET_RANDOM_STORE,
     INSERT_TEST_DATA,
+    REGISTER_PURCHASE_FOR_RANDOM_PRODUCT,
 )
 
 __all__ = ["SMRQueries"]
@@ -21,4 +22,5 @@ class SMRQueries(Queries):
         GET_RANDOM_PRODUCT,
         GET_RANDOM_PURCHASE,
         GET_PRODUCTS_WITH_HIGH_PURCHASES_AND_LOW_STOCK_RANDOMLY,
+        REGISTER_PURCHASE_FOR_RANDOM_PRODUCT,
     ]
