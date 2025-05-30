@@ -46,11 +46,18 @@ until HTTP_CODE="\$(curl -s -o /dev/null -w "%{http_code}" 'http://${PG_PATRONI_
 done
 
 if [ "\$HTTP_CODE" -eq 200 ]; then
-    CONN_STR="dbname=postgres user=${POSTGRESQL_USERNAME} password=${POSTGRESQL_PASSWORD} host=localhost port=5432"
-    until psql "\$CONN_STR" -c "CREATE DATABASE ${POSTGRESQL_DATABASE};"; do
-      echo "Waiting for database creation..."
+    DEFAULT_CONN_STR="dbname=postgres user=${POSTGRESQL_USERNAME} password=${POSTGRESQL_PASSWORD} host=localhost port=5432"
+    until psql "\$DEFAULT_CONN_STR" -c "SELECT 1;" >/dev/null 2>&1; do
+      echo "Waiting for PostgreSQL to be ready..."
       sleep 1
     done
+
+    CONN_STR="dbname=${POSTGRESQL_DATABASE} user=${POSTGRESQL_USERNAME} password=${POSTGRESQL_PASSWORD} host=localhost port=5432"
+    if psql "\$CONN_STR" -c "SELECT 1;" >/dev/null 2>&1; then
+      echo "Database ${POSTGRESQL_DATABASE} already exists."
+      exit 0
+    fi
+    psql "\$DEFAULT_CONN_STR" -c "CREATE DATABASE ${POSTGRESQL_DATABASE};"
     echo "Database ${POSTGRESQL_DATABASE} created successfully."
   fi
 EOF
