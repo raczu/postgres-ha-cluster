@@ -11,6 +11,9 @@ from pgload.sql.utils import pgconnection, pgtransaction
 app = typer.Typer(help="Database health check commands for pgload.")
 
 DSN: str = typer.Option(..., "--dsn", help="Database connection strings to check health.")
+DISPLAY: bool = typer.Option(
+    True, "--display", help="Display the health check results in a table."
+)
 
 
 class Node:
@@ -26,7 +29,7 @@ class Node:
 
 
 @app.command(help="Check the health of the database(s).")
-def check(dsn: str = DSN) -> None:
+def check(dsn: str = DSN, display: bool = DISPLAY) -> None:
     nodes = [Node(dsn=d.strip()) for d in re.split(r"[ ,]+", dsn) if d.strip()]
     if not nodes:
         raise typer.BadParameter("At least one DSN must be provided.")
@@ -40,16 +43,17 @@ def check(dsn: str = DSN) -> None:
         except psycopg2.DatabaseError:
             pass
 
-    table = Table()
-    table.add_column("Node", justify="left")
-    table.add_column("Health", justify="left")
-    for node in nodes:
-        color = typer.colors.GREEN if node.healthy else typer.colors.RED
-        status = "healthy" if node.healthy else "unhealthy"
-        table.add_row(f"[{typer.colors.BLUE}]{node.address}", f"[{color}]{status}")
+    if display:
+        table = Table()
+        table.add_column("Node", justify="left")
+        table.add_column("Health", justify="left")
+        for node in nodes:
+            color = typer.colors.GREEN if node.healthy else typer.colors.RED
+            status = "healthy" if node.healthy else "unhealthy"
+            table.add_row(f"[{typer.colors.BLUE}]{node.address}", f"[{color}]{status}")
+        console = Console()
+        console.print(table)
 
-    console = Console()
-    console.print(table)
     if not all(node.healthy for node in nodes):
         typer.secho("Some nodes are unhealthy.", fg=typer.colors.RED)
         raise typer.Exit(1)

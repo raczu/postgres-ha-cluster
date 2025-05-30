@@ -1,4 +1,4 @@
-from prometheus_client import Counter, Gauge, Histogram
+from prometheus_client import Counter, Histogram
 
 QUERY_ERROR_COUNTER = Counter(
     "pgload_query_error_total",

@@ -8,10 +8,10 @@ from prometheus_client import start_http_server
 from pgload.sql import (
     QUERIES_BASED_ON_CLUSTER_MODE,
     ClusterMode,
-    Query,
     QueryType,
-    SQLWorker,
+    SQLWorkerManager,
 )
+from pgload.commands.health import check
 
 app = typer.Typer(help="Benchmarking commands for pgload.")
 
@@ -44,22 +44,6 @@ METRICS_SERVER_PORT: int = typer.Option(
 )
 
 
-def _initialize_workers(
-    dsn: str,
-    queries: list[Query],
-    stop_event: threading.Event,
-    num: int,
-) -> list[SQLWorker]:
-    return [
-        SQLWorker(
-            dsn=dsn,
-            queries=queries,
-            stop_event=stop_event,
-        )
-        for _ in range(num)
-    ]
-
-
 @app.command(help="Run a benchmark on the database.")
 def run(
     mode: ClusterMode = MODE,
@@ -70,36 +54,32 @@ def run(
     duration: int | None = DURATION,
     metrics_port: int = METRICS_SERVER_PORT,
 ) -> None:
-    if not write_dsn or not read_dsn:
+    if not (write_dsn or read_dsn):
         typer.BadParameter("At least one of --write-dsn or --read-dsn must be provided.")
     if write_clients > clients:
         raise typer.BadParameter("Number of write clients cannot exceed total number of clients.")
 
+    check(",".join(dsn for dsn in (write_dsn, read_dsn) if dsn), display=False)
     stop_event = threading.Event()
-    signal.signal(signal.SIGINT, lambda signum, frame: stop_event.set())
-    signal.signal(signal.SIGTERM, lambda signum, frame: stop_event.set())
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(sig, lambda signum, frame: stop_event.set())
     start_http_server(metrics_port)
 
     queries = QUERIES_BASED_ON_CLUSTER_MODE[mode]
-    workers = []
+    manager = SQLWorkerManager(stop_event=stop_event)
     if write_dsn:
-        workers.extend(
-            _initialize_workers(
-                dsn=write_dsn,
-                queries=queries.filter(type=QueryType.WRITE, tags=["benchmark"])
-                + queries.filter(type=QueryType.MIXED, tags=["benchmark"]),
-                stop_event=stop_event,
-                num=write_clients,
-            )
+        manager.add(
+            dsn=write_dsn,
+            queries=queries.filter(type=QueryType.WRITE, tags=["benchmark"])
+            + queries.filter(type=QueryType.MIXED, tags=["benchmark"]),
+            num=write_clients,
         )
+
     if read_dsn:
-        workers.extend(
-            _initialize_workers(
-                dsn=read_dsn,
-                queries=queries.filter(type=QueryType.READ, tags=["benchmark"]),
-                stop_event=stop_event,
-                num=clients - write_clients,
-            )
+        manager.add(
+            dsn=write_dsn,
+            queries=queries.filter(type=QueryType.WRITE, tags=["benchmark"]),
+            num=write_clients,
         )
 
     typer.secho(
@@ -109,8 +89,7 @@ def run(
         f")...",
         fg=typer.colors.YELLOW,
     )
-    for worker in workers:
-        worker.start()
+    manager.start()
 
     start = time.time()
     while not stop_event.is_set():
@@ -118,13 +97,11 @@ def run(
             stop_event.set()
             break
 
-        if not all(worker.is_alive() for worker in workers):
+        if not manager.all_alive():
             typer.secho("One or more workers have stopped unexpectedly.", fg=typer.colors.RED)
             typer.secho("Stopping benchmark...", fg=typer.colors.YELLOW)
             stop_event.set()
         time.sleep(0.1)
 
-    for worker in workers:
-        worker.join()
-
+    manager.stop()
     typer.secho("Benchmark completed.", fg=typer.colors.GREEN)
