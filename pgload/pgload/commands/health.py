@@ -11,9 +11,7 @@ from pgload.sql.utils import pgconnection, pgtransaction
 app = typer.Typer(help="Database health check commands for pgload.")
 
 DSN: str = typer.Option(..., "--dsn", help="Database connection strings to check health.")
-DISPLAY: bool = typer.Option(
-    True, "--display", help="Display the health check results in a table."
-)
+DISPLAY: bool = typer.Option(True, "--display", help="Display the health check results in a table.")
 
 
 class Node:

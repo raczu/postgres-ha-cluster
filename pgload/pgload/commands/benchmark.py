@@ -5,13 +5,13 @@ import time
 import typer
 from prometheus_client import start_http_server
 
+from pgload.commands.health import check
 from pgload.sql import (
     QUERIES_BASED_ON_CLUSTER_MODE,
     ClusterMode,
     QueryType,
     SQLWorkerManager,
 )
-from pgload.commands.health import check
 
 app = typer.Typer(help="Benchmarking commands for pgload.")
 
