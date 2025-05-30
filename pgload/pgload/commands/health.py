@@ -6,7 +6,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pgload.sql.utils import pgconnection
+from pgload.sql.utils import pgconnection, pgtransaction
 
 app = typer.Typer(help="Database health check commands for pgload.")
 
@@ -19,7 +19,9 @@ class Node:
         if not parsed.hostname or not parsed.scheme.startswith("postgres"):
             raise ValueError(f"Invalid DSN: {dsn}")
         self.dsn = dsn
-        self.address = f"{parsed.hostname}:{parsed.port}" if parsed.port else parsed.hostname
+        self.address = (
+            f"{parsed.hostname}:{parsed.port}" if parsed.port else f"{parsed.hostname}:5432"
+        )
         self.healthy = False
 
 
@@ -32,15 +34,15 @@ def check(dsn: str = DSN) -> None:
     for node in nodes:
         try:
             with pgconnection(node.dsn) as conn:
-                with conn.cursor() as cur:
-                    cur.execute("SELECT 1;")
+                with pgtransaction(conn) as tx:
+                    tx.execute("SELECT 1;")
                     node.healthy = True
         except psycopg2.DatabaseError:
-            ...
+            pass
 
     table = Table()
     table.add_column("Node", justify="left")
-    table.add_column("Healthy", justify="left")
+    table.add_column("Health", justify="left")
     for node in nodes:
         color = typer.colors.GREEN if node.healthy else typer.colors.RED
         status = "healthy" if node.healthy else "unhealthy"

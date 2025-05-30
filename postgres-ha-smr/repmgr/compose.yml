@@ -15,7 +15,7 @@ services:
       - POSTGRESQL_REPLICATION_MODE=master
       - POSTGRESQL_CLUSTER_APP_NAME=pg-0
       - REPMGR_PRIMARY_HOST=pg-0
-      - REPMGR_PARTNER_NODES=pg-2,pg-1,pg-0
+      - REPMGR_PARTNER_NODES=pg-3,pg-2,pg-1,pg-0
       - REPMGR_NODE_NAME=pg-0
       - REPMGR_NODE_NETWORK_NAME=pg-0
       - REPMGR_USERNAME=repmgr
@@ -37,7 +37,7 @@ services:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_CLUSTER_APP_NAME=pg-1
       - REPMGR_PRIMARY_HOST=pg-0
-      - REPMGR_PARTNER_NODES=pg-0,pg-2,pg-1
+      - REPMGR_PARTNER_NODES=pg-0,pg-3,pg-2,pg-1
       - REPMGR_NODE_NAME=pg-1
       - REPMGR_NODE_NETWORK_NAME=pg-1
       - REPMGR_USERNAME=repmgr
@@ -59,9 +59,29 @@ services:
       - POSTGRESQL_REPLICATION_MODE=slave
       - POSTGRESQL_CLUSTER_APP_NAME=pg-2
       - REPMGR_PRIMARY_HOST=pg-0
-      - REPMGR_PARTNER_NODES=pg-0,pg-1,pg-2
+      - REPMGR_PARTNER_NODES=pg-0,pg-1,pg-2,pg-3
       - REPMGR_NODE_NAME=pg-2
       - REPMGR_NODE_NETWORK_NAME=pg-2
+      - REPMGR_USERNAME=repmgr
+      - REPMGR_PASSWORD=repmgr
+
+  pg-3:
+    image: docker.io/bitnami/postgresql-repmgr:17.4.0
+    networks:
+      - pg-network
+    volumes:
+      - pg-2-data:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=postgres
+      - POSTGRESQL_USERNAME=dba
+      - POSTGRESQL_PASSWORD=sql
+      - POSTGRESQL_DATABASE=ecommerce
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_CLUSTER_APP_NAME=pg-3
+      - REPMGR_PRIMARY_HOST=pg-0
+      - REPMGR_PARTNER_NODES=pg-0,pg-1,pg-2,pg-3
+      - REPMGR_NODE_NAME=pg-3
+      - REPMGR_NODE_NETWORK_NAME=pg-3
       - REPMGR_USERNAME=repmgr
       - REPMGR_PASSWORD=repmgr
 
@@ -72,8 +92,8 @@ services:
     networks:
       - pg-network
     environment:
-      - PGPOOL_BACKEND_NODES=0:pg-0:5432,1:pg-1:5432,2:pg-2:5432
-      - PGPOOL_BACKEND_APPLICATION_NAMES=pg-0,pg-1,pg-2
+      - PGPOOL_BACKEND_NODES=0:pg-0:5432,1:pg-1:5432,2:pg-2:5432,3:pg-3:5432
+      - PGPOOL_BACKEND_APPLICATION_NAMES=pg-0,pg-1,pg-2,pg-3
       - PGPOOL_SR_CHECK_USER=repmgr
       - PGPOOL_SR_CHECK_PASSWORD=repmgr
       - PGPOOL_POSTGRES_USERNAME=postgres
@@ -96,6 +116,7 @@ volumes:
   pg-0-data:
   pg-1-data:
   pg-2-data:
+  pg-3-data:
 
 networks:
   pg-network:

@@ -1,10 +1,12 @@
+import time
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, Callable
 
 import psycopg2
 
-from pgload.metrics import QUERY_COUNTER, QUERY_DURATION, QUERY_ERROR_COUNTER
+from pgload.metrics import QUERY_COUNTER, QUERY_ERROR_COUNTER, QUERY_LATENCY_HISTOGRAM
+from pgload.sql.utils import pgaddr
 
 
 class QueryType(StrEnum):
@@ -32,15 +34,16 @@ class Query:
             Any result from the query execution based on the callable.
         """
         if metrics:
-            label = self.type.lower()
-            QUERY_COUNTER.labels(label).inc()
-            with QUERY_DURATION.labels(label).time():
-                try:
+            qtype = self.type.lower()
+            ipaddr = pgaddr(conn)
+            try:
+                QUERY_COUNTER.labels(qtype, ipaddr).inc()
+                with QUERY_LATENCY_HISTOGRAM.labels(qtype, ipaddr).time():
                     result = self.callable(conn, **kwargs)
-                    return result
-                except psycopg2.DatabaseError as exc:
-                    QUERY_ERROR_COUNTER.labels(label).inc()
-                    raise exc
+                return result
+            except psycopg2.DatabaseError as exc:
+                QUERY_ERROR_COUNTER.labels(qtype, ipaddr).inc()
+                raise exc
         else:
             return self.callable(conn, **kwargs)
 

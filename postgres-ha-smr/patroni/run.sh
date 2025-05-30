@@ -23,7 +23,6 @@ bootstrap:
   pg_hba:
     - host replication replicator 0.0.0.0/0 md5
     - host all all 0.0.0.0/0 md5
-  post_init: /opt/patroni/init-db.sh
 postgresql:
   listen: ${PG_PATRONI_POSTGRESQL_LISTEN}
   connect_address: ${PG_PATRONI_POSTGRESQL_CONNECT_ADDRESS}
@@ -38,11 +37,24 @@ postgresql:
 EOF
 
 cat << EOF > /opt/patroni/init-db.sh
-#!/bin/bash
-set -e
+echo "Sleeping for 10 seconds to allow Patroni to start..."
+sleep 10
 
-psql -d "\$1" -c "CREATE DATABASE ${POSTGRESQL_DATABASE};"
+until HTTP_CODE="\$(curl -s -o /dev/null -w "%{http_code}" 'http://${PG_PATRONI_RESTAPI_LISTEN}/primary')"; do
+  echo "Waiting for Patroni REST API to be available..."
+  sleep 1
+done
+
+if [ "\$HTTP_CODE" -eq 200 ]; then
+    CONN_STR="dbname=postgres user=${POSTGRESQL_USERNAME} password=${POSTGRESQL_PASSWORD} host=localhost port=5432"
+    until psql "\$CONN_STR" -c "CREATE DATABASE ${POSTGRESQL_DATABASE};"; do
+      echo "Waiting for database creation..."
+      sleep 1
+    done
+    echo "Database ${POSTGRESQL_DATABASE} created successfully."
+  fi
 EOF
 
 chmod +x /opt/patroni/init-db.sh
+/opt/patroni/init-db.sh &
 patroni /opt/patroni/patroni.yml

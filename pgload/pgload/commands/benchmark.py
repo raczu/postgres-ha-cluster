@@ -38,7 +38,7 @@ DURATION: int | None = typer.Option(
     help="Duration of the benchmark in seconds or None for infinite.",
 )
 METRICS_SERVER_PORT: int = typer.Option(
-    8000,
+    8080,
     "--metrics-port",
     help="Port for the Prometheus metrics server.",
 )

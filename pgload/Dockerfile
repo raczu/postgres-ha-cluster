@@ -36,6 +36,6 @@ RUN --mount=type=cache,target=/root/.cache \
     pipx install /tmp/pgload-*.whl && rm -rf /tmp/pgload-*.whl && chmod +x /run.sh
 
 # Expose metrics port
-EXPOSE 8000
+EXPOSE 8080
 
 CMD ["/bin/bash", "/run.sh"]

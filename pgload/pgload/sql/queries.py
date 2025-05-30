@@ -2,6 +2,10 @@ from pgload.sql.callables import (
     create_new_store,
     drop_database,
     get_products_with_high_purchase_and_low_stock,
+    get_products_with_high_purchases_and_low_stock_randomly,
+    get_random_product,
+    get_random_purchase,
+    get_random_store,
     get_top_5_stores_by_total_purchase_value,
     init_citus_sharding_database,
     init_smr_database,
@@ -38,6 +42,11 @@ GET_PRODUCTS_WITH_HIGH_PURCHASE_AND_LOW_STOCK = ReadQuery(
     tags=["benchmark"],
 )
 
+GET_PRODUCTS_WITH_HIGH_PURCHASE_AND_LOW_STOCK_RANDOMLY = ReadQuery(
+    callable=get_products_with_high_purchases_and_low_stock_randomly,
+    tags=["benchmark"],
+)
+
 CREATE_NEW_STORE = WriteQuery(
     callable=create_new_store,
     tags=["benchmark"],
@@ -50,5 +59,20 @@ UPDATE_RANDOM_PRODUCT_QUANTITY = MixedQuery(
 
 REGISTER_PURCHASE_FOR_RANDOM_PRODUCT = MixedQuery(
     callable=register_purchase_for_random_product,
+    tags=["benchmark"],
+)
+
+GET_RANDOM_STORE = ReadQuery(
+    callable=get_random_store,
+    tags=["benchmark"],
+)
+
+GET_RANDOM_PRODUCT = ReadQuery(
+    callable=get_random_product,
+    tags=["benchmark"],
+)
+
+GET_RANDOM_PURCHASE = ReadQuery(
+    callable=get_random_purchase,
     tags=["benchmark"],
 )

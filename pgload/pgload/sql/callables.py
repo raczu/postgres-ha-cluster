@@ -242,84 +242,15 @@ def insert_test_data_for_sharding(conn: Any, scale: int, seed: int) -> None:
                 )
 
 
-def get_top_5_stores_by_total_purchase_value(conn: Any) -> list[tuple]:
+
+
+
+def get_random_purchase(conn: Any) -> tuple:
     sql = """
-    SELECT
-        s.store_id,
-        s.name AS store_name,
-        COUNT(pu.purchase_id) AS total_purchases,
-        SUM(pu.price) AS total_value
-    FROM ecommerce.stores s
-    JOIN ecommerce.products pr ON s.store_id = pr.store_id
-    JOIN ecommerce.purchases pu ON pr.product_id = pu.product_id
-    WHERE pu.purchased_at >= NOW() - INTERVAL '30 days'
-    GROUP BY s.store_id, s.name
-    ORDER BY total_value DESC
-    LIMIT 5;
-    """
-    with pgtransaction(conn) as tx:
-        tx.execute(sql)
-        result = tx.fetchall()
-    return result
-
-
-def get_products_with_high_purchase_and_low_stock(conn: Any) -> list[tuple]:
-    sql = """
-    SELECT
-        pr.product_id,
-        pr.name,
-        pr.quantity,
-        COUNT(pu.purchase_id) AS purchase_count,
-        AVG(pu.price) AS avg_purchase_price
-    FROM ecommerce.products pr
-    JOIN ecommerce.purchases pu ON pr.product_id = pu.product_id
-    WHERE pr.quantity < 10
-    AND pu.purchased_at >= NOW() - INTERVAL '7 days'
-    GROUP BY pr.product_id, pr.name, pr.quantity
-    HAVING COUNT(pu.purchase_id) > 5
-    ORDER BY purchase_count DESC
-    LIMIT 10;
-    """
-    with pgtransaction(conn) as tx:
-        tx.execute(sql)
-        result = tx.fetchall()
-    return result
-
-
-def create_new_store(conn: Any) -> tuple:
-    sql = """
-    INSERT INTO ecommerce.stores (owner_email, name)
-    VALUES (%s, %s)
-    RETURNING store_id;
-    """
-    fake = Faker()
-    with pgtransaction(conn) as tx:
-        tx.execute(sql, (fake.email(), fake.company()))
-        result = tx.fetchone()
-    return result
-
-
-def register_purchase_for_random_product(conn: Any) -> tuple:
-    sql = """
-    WITH random_product AS (
-        SELECT product_id, store_id, price
-        FROM ecommerce.products
-        WHERE quantity >= 1
-        ORDER BY RANDOM()
-        LIMIT 1
-    ),
-    updated_product AS (
-        UPDATE ecommerce.products
-        SET quantity = quantity - 1,
-            updated_at = NOW()
-        WHERE product_id = (SELECT product_id FROM random_product)
-          AND store_id = (SELECT store_id FROM random_product)
-        RETURNING product_id, store_id, price
-    )
-    INSERT INTO ecommerce.purchases (product_id, price)
-    SELECT product_id, price
-    FROM updated_product
-    RETURNING purchase_id, purchased_at;
+    SELECT *
+    FROM ecommerce.purchases
+    ORDER BY RANDOM()
+    LIMIT 1;
     """
     with pgtransaction(conn) as tx:
         tx.execute(sql)
@@ -327,16 +258,27 @@ def register_purchase_for_random_product(conn: Any) -> tuple:
     return result
 
 
-def update_random_product_quantity(conn: Any) -> None:
+def get_random_store(conn: Any) -> tuple:
     sql = """
-    UPDATE ecommerce.products
-    SET quantity = quantity + 1
-    WHERE product_id = (
-        SELECT product_id
-        FROM ecommerce.products
-        ORDER BY RANDOM()
-        LIMIT 1
-    );
+    SELECT *
+    FROM ecommerce.stores
+    ORDER BY RANDOM()
+    LIMIT 1;
     """
     with pgtransaction(conn) as tx:
         tx.execute(sql)
+        result = tx.fetchone()
+    return result
+
+
+def get_random_product(conn: Any) -> tuple:
+    sql = """
+    SELECT *
+    FROM ecommerce.products
+    ORDER BY RANDOM()
+    LIMIT 1;
+    """
+    with pgtransaction(conn) as tx:
+        tx.execute(sql)
+        result = tx.fetchone()
+    return result
