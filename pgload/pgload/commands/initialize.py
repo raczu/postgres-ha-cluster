@@ -1,6 +1,7 @@
 import random
 
 import typer
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from pgload.sql import (
     QUERIES_BASED_ON_CLUSTER_MODE,
@@ -50,9 +51,15 @@ def database(
                 "Including test data in the database. This may take a while.",
                 fg=typer.colors.YELLOW,
             )
-            queries.filter(type=QueryType.WRITE, tags=["fulfill", "testdata"])[0](
-                conn=conn, metrics=False, scale=scale, seed=seed
-            )
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                transient=True,
+            ) as progress:
+                progress.add_task(description="Generating and inserting test data...", total=None)
+                queries.filter(type=QueryType.WRITE, tags=["fulfill", "testdata"])[0](
+                    conn=conn, metrics=False, scale=scale, seed=seed
+                )
             typer.echo(
                 f"Included test data in database with scale factor: "
                 f"{typer.style(scale, fg=typer.colors.BLUE)} "

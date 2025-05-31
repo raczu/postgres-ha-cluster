@@ -17,6 +17,7 @@ services:
       - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasource.yaml
 
   pgload:
+    image: pgload:0.1.0
     build:
       context: ../pgload
     networks:
