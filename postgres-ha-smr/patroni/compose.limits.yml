@@ -1,0 +1,24 @@
+services:
+  pg-0:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+
+  pg-1:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+
+  pg-2:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+
+  pg-3:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"

@@ -2,7 +2,7 @@ services:
   pg-0:
     image: docker.io/bitnami/postgresql-repmgr:17.4.0
     networks:
-        - pg-network
+      - pg-network
     volumes:
       - pg-0-data:/bitnami/postgresql
     environment:

@@ -17,6 +17,7 @@ bootstrap:
     postgresql:
       use_pg_rewind: true
       use_slots: true
+      parameters: {max_connections: 256, shared_buffers: 256MB}
   initdb:
     - encoding: UTF8
     - data-checksums
