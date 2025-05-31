@@ -1,5 +1,8 @@
+import io
+import itertools
 from contextlib import contextmanager
-from typing import Any, Generator
+from dataclasses import astuple
+from typing import Any, Generator, Iterator
 from urllib.parse import urlparse
 
 import psycopg2
@@ -59,3 +62,15 @@ def pgaddr(conn: Any) -> str:
     with pgtransaction(conn) as tx:
         tx.execute("SELECT inet_server_addr() AS address")
         return tx.fetchone()[0]
+
+
+def write2buffer(rows: list[Any]) -> io.StringIO:
+    buf = io.StringIO()
+    buf.writelines("\t".join(map(str, astuple(row))) + "\n" for row in rows)
+    buf.seek(0)
+    return buf
+
+
+def batchify(iterable: list[Any], size: int) -> Iterator[list[Any]]:
+    iterator = iter(iterable)
+    return iter(lambda: list(itertools.islice(iterator, size)), [])

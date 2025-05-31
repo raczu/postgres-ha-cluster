@@ -1,10 +1,9 @@
-from dataclasses import astuple
 from typing import Any
 
 from faker import Faker
 
 from pgload.sql.models import Product, Purchase, Store
-from pgload.sql.utils import pgtransaction
+from pgload.sql.utils import batchify, pgtransaction, write2buffer
 
 
 def init_database(conn: Any) -> None:
@@ -50,76 +49,53 @@ def drop_database(conn: Any) -> None:
 def insert_test_data(conn: Any, scale: int, seed: int) -> None:
     Faker.seed(seed)
     fake = Faker()
-    with pgtransaction(conn) as tx:
-        stores = [
-            Store(
-                store_id=fake.uuid4(),
-                owner_email=fake.email(),
-                name=fake.company(),
-                created_at=fake.date_time_this_year(before_now=True),
-            )
-            for _ in range(scale)
-        ]
-        tx.executemany(
-            """
-            INSERT INTO ecommerce.stores (store_id, owner_email, name, created_at)
-            VALUES (%s, %s, %s, %s);
-            """,
-            [astuple(store) for store in stores],  # type: ignore
+
+    stores = [
+        Store(
+            store_id=fake.uuid4(),
+            owner_email=fake.email(),
+            name=fake.company(),
+            created_at=fake.date_time_this_year(before_now=True),
         )
+        for _ in range(scale)
+    ]
 
-        for store in stores:
-            products = [
-                Product(
-                    product_id=fake.uuid4(),
-                    name=fake.unique.bothify("P##??"),
-                    description=fake.sentence(),
-                    price=round(fake.pyfloat(left_digits=3, right_digits=2, positive=True), 2),
-                    quantity=fake.random_int(min=1, max=100),
-                    store_id=store.store_id,
-                    created_at=fake.date_time_this_year(before_now=True),
-                    updated_at=fake.date_time_this_year(after_now=True),
-                )
-                for _ in range(10 * scale)
-            ]
-            tx.executemany(
-                """
-                INSERT INTO ecommerce.products
-                    (
-                        product_id,
-                        name,
-                        description,
-                        price,
-                        quantity,
-                        store_id,
-                        created_at,
-                        updated_at
-                    )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
-                """,
-                [astuple(product) for product in products],  # type: ignore
-            )
+    products = [
+        Product(
+            product_id=fake.uuid4(),
+            name=fake.unique.bothify("P##??"),
+            description=fake.sentence(),
+            price=round(fake.pyfloat(left_digits=3, right_digits=2, positive=True), 2),
+            quantity=fake.random_int(min=1, max=100),
+            store_id=store.store_id,
+            created_at=fake.date_time_this_year(before_now=True),
+            updated_at=fake.date_time_this_year(after_now=True),
+        )
+        for store in stores
+        for _ in range(10 * scale)
+    ]
 
-            for product in products:
-                purchases = [
-                    Purchase(
-                        purchase_id=fake.uuid4(),
-                        product_id=product.product_id,
-                        price=round(
-                            fake.pyfloat(left_digits=3, right_digits=2, positive=True),
-                            2,
-                        ),
-                        purchased_at=fake.date_time_between(start_date="-30d", end_date="now"),
-                    )
-                    for _ in range(100 * scale)
-                ]
-                tx.executemany(
-                    """
-                    INSERT INTO ecommerce.purchases (purchase_id, product_id, price, purchased_at)
-                    VALUES (%s, %s, %s, %s);
-                    """,
-                    [astuple(purchase) for purchase in purchases],  # type: ignore
-                )
+    purchases = [
+        Purchase(
+            purchase_id=fake.uuid4(),
+            product_id=product.product_id,
+            price=round(fake.pyfloat(left_digits=3, right_digits=2, positive=True), 2),
+            purchased_at=fake.date_time_between(start_date="-30d", end_date="now"),
+        )
+        for product in products
+        for _ in range(100 * scale)
+    ]
+
+    with pgtransaction(conn) as tx:
+        tx.copy_expert("COPY ecommerce.stores FROM STDIN", write2buffer(stores))
+
+    for batch in batchify(products, 250_000):
+        with pgtransaction(conn) as tx:
+            tx.copy_expert("COPY ecommerce.products FROM STDIN", write2buffer(batch))
+
+    for batch in batchify(purchases, 250_000):
+        with pgtransaction(conn) as tx:
+            tx.copy_expert("COPY ecommerce.purchases FROM STDIN", write2buffer(batch))
 
 
 def get_random_purchase(conn: Any) -> tuple:
