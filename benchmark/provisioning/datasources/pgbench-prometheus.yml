@@ -1,8 +1,9 @@
 apiVersion: 1
 
 datasources:
-  - name: pg-prometheus
+  - name: pgbench-prometheus
     type: prometheus
     url: http://prometheus:9090
     jsonData:
       timeInterval: "1s"
+    isDefault: true

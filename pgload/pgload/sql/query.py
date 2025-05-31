@@ -44,7 +44,12 @@ class Query:
                 with QUERY_LATENCY_HISTOGRAM.labels(qtype, ipaddr).time():
                     result = self.callable(conn, **kwargs)
                 return result
-            except (psycopg2.ProgrammingError, psycopg2.DataError, psycopg2.IntegrityError) as exc:
+            except (
+                psycopg2.OperationalError,
+                psycopg2.ProgrammingError,
+                psycopg2.DataError,
+                psycopg2.IntegrityError,
+            ) as exc:
                 QUERY_ERROR_COUNTER.labels(qtype, ipaddr).inc()
                 raise exc
         else:

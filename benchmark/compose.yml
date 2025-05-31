@@ -14,7 +14,8 @@ services:
     networks:
       - pgload-network
     volumes:
-      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasource.yaml
+      - ./provisioning:/etc/grafana/provisioning
+      - ./dashboards:/var/lib/grafana/dashboards
 
   pgload:
     image: pgload:0.1.0
@@ -30,8 +31,8 @@ services:
       - PGLOAD_HEALTH_CHECK_TIMEOUT=240
       - PGLOAD_WRITE_DSN=postgresql://dba:sql@localhost:5432/ecommerce
       - PGLOAD_READ_DSN=postgresql://dba:sql@localhost:5433/ecommerce
-      - PGLOAD_SCALE=6
-      - PGLOAD_CLIENTS=64
+      - PGLOAD_SCALE=8
+      - PGLOAD_CLIENTS=32
 
 volumes:
   prom-data:

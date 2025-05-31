@@ -1,4 +1,5 @@
 import itertools
+import random
 import threading
 import time
 
@@ -35,7 +36,7 @@ class SQLWorker(threading.Thread):
                     while not self._stop_event.is_set():
                         query = next(self._queries)
                         _ = query(conn)
-                        time.sleep(0.2)
+                        time.sleep(random.uniform(0.15, 0.35))
 
 
 class SQLWorkerManager:
