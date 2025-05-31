@@ -4,7 +4,11 @@ from typing import Any, Callable
 
 import psycopg2
 
-from pgload.metrics import QUERY_COUNTER, QUERY_ERROR_COUNTER, QUERY_LATENCY_HISTOGRAM
+from pgload.metrics import (
+    QUERY_COUNTER,
+    QUERY_ERROR_COUNTER,
+    QUERY_LATENCY_HISTOGRAM,
+)
 from pgload.sql.utils import pgaddr
 
 
@@ -40,7 +44,7 @@ class Query:
                 with QUERY_LATENCY_HISTOGRAM.labels(qtype, ipaddr).time():
                     result = self.callable(conn, **kwargs)
                 return result
-            except psycopg2.DatabaseError as exc:
+            except (psycopg2.ProgrammingError, psycopg2.DataError, psycopg2.IntegrityError) as exc:
                 QUERY_ERROR_COUNTER.labels(qtype, ipaddr).inc()
                 raise exc
         else:

@@ -38,7 +38,7 @@ def check(dsn: str = DSN, display: bool = DISPLAY) -> None:
                 with pgtransaction(conn) as tx:
                     tx.execute("SELECT 1;")
                     node.healthy = True
-        except psycopg2.DatabaseError:
+        except psycopg2.OperationalError:
             pass
 
     if display:

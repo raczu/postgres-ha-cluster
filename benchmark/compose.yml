@@ -1,10 +1,8 @@
 services:
   prometheus:
     image: docker.io/prom/prometheus:v3.4.0
-    ports:
-      - "9090:9090"
     networks:
-      - pg-network
+      - pgload-network
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prom-data:/prometheus
@@ -14,27 +12,29 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - pg-network
+      - pgload-network
     volumes:
       - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasource.yaml
 
   pgload:
     build:
-      context: ../../pgload/
+      context: ../pgload
     networks:
-      - pg-network
+      - pgload-network
     environment:
       - PGLOAD_MODE=replication
       - PGLOAD_NODES_DSN=
-        postgresql://dba:sql@pg-0:5432/ecommerce
-        postgresql://dba:sql@pg-1:5432/ecommerce
-        postgresql://dba:sql@pg-2:5432/ecommerce
-        postgresql://dba:sql@pg-3:5432/ecommerce
+        postgresql://dba:sql@localhost:5432/ecommerce
+        postgresql://dba:sql@localhost:5433/ecommerce
       - PGLOAD_HEALTH_CHECK_TIMEOUT=240
-      - PGLOAD_WRITE_DSN=postgresql://dba:sql@haproxy:5000/ecommerce
-      - PGLOAD_READ_DSN=postgresql://dba:sql@haproxy:5001/ecommerce
+      - PGLOAD_WRITE_DSN=postgresql://dba:sql@localhost:5432/ecommerce
+      - PGLOAD_READ_DSN=postgresql://dba:sql@localhost:5433/ecommerce
       - PGLOAD_SCALE=6
-      - PGLOAD_CLIENTS=32
+      - PGLOAD_CLIENTS=64
 
 volumes:
   prom-data:
+
+networks:
+  pgload-network:
+    driver: bridge

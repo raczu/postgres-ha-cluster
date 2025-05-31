@@ -6,7 +6,7 @@ import psycopg2
 from tenacity import (
     Retrying,
     retry_if_exception_type,
-    stop_after_delay,
+    stop_after_attempt,
     stop_when_event_set,
     wait_fixed,
 )
@@ -23,19 +23,19 @@ class SQLWorker(threading.Thread):
         self._stop_event: threading.Event = stop_event
 
     def run(self) -> None:
-        while not self._stop_event.is_set():
-            query = next(self._queries)
-            r = Retrying(
-                stop=stop_when_event_set(self._stop_event),
-                wait=wait_fixed(0.2),
-                retry=retry_if_exception_type(psycopg2.DatabaseError),
-                reraise=True,
-            )
-            for attempt in r:
-                with attempt:
-                    with pgconnection(self._dsn) as conn:
+        r = Retrying(
+            stop=stop_when_event_set(self._stop_event) | stop_after_attempt(30),
+            wait=wait_fixed(1.0),
+            retry=retry_if_exception_type(psycopg2.OperationalError),
+            reraise=True,
+        )
+        for attempt in r:
+            with attempt:
+                with pgconnection(self._dsn) as conn:
+                    while not self._stop_event.is_set():
+                        query = next(self._queries)
                         _ = query(conn)
-            time.sleep(0.2)
+                        time.sleep(0.2)
 
 
 class SQLWorkerManager:
