@@ -41,11 +41,6 @@ def init_database(conn: Any) -> None:
         tx.execute(sql)
 
 
-def drop_database(conn: Any) -> None:
-    with pgtransaction(conn) as tx:
-        tx.execute("DROP SCHEMA IF EXISTS ecommerce CASCADE;")
-
-
 def insert_test_data(conn: Any, scale: int, seed: int) -> None:
     Faker.seed(seed)
     fake = Faker()
@@ -96,45 +91,6 @@ def insert_test_data(conn: Any, scale: int, seed: int) -> None:
     for batch in batchify(purchases, 250_000):
         with pgtransaction(conn) as tx:
             tx.copy_expert("COPY ecommerce.purchases FROM STDIN", write2buffer(batch))
-
-
-def get_random_purchase(conn: Any) -> tuple:
-    sql = """
-    SELECT *
-    FROM ecommerce.purchases
-    ORDER BY RANDOM()
-    LIMIT 1;
-    """
-    with pgtransaction(conn) as tx:
-        tx.execute(sql)
-        result = tx.fetchone()
-    return result
-
-
-def get_random_store(conn: Any) -> tuple:
-    sql = """
-    SELECT *
-    FROM ecommerce.stores
-    ORDER BY RANDOM()
-    LIMIT 1;
-    """
-    with pgtransaction(conn) as tx:
-        tx.execute(sql)
-        result = tx.fetchone()
-    return result
-
-
-def get_random_product(conn: Any) -> tuple:
-    sql = """
-    SELECT *
-    FROM ecommerce.products
-    ORDER BY RANDOM()
-    LIMIT 1;
-    """
-    with pgtransaction(conn) as tx:
-        tx.execute(sql)
-        result = tx.fetchone()
-    return result
 
 
 def get_top_5_stores_by_total_purchase_value(conn: Any) -> list[tuple]:
@@ -258,3 +214,31 @@ def update_random_product_quantity(conn: Any) -> None:
     """
     with pgtransaction(conn) as tx:
         tx.execute(sql)
+
+
+def get_random_store_purchases(conn: Any) -> list[tuple]:
+    sql = """
+    SELECT p.name, pu.purchase_id, pu.price, pu.purchased_at
+    FROM ecommerce.products p
+    JOIN ecommerce.purchases pu ON p.product_id = pu.product_id
+    WHERE p.store_id = (SELECT store_id FROM ecommerce.stores ORDER BY random() LIMIT 1);
+    """
+    with pgtransaction(conn) as tx:
+        tx.execute(sql)
+        result = tx.fetchall()
+    return result
+
+
+def get_random_store_total_sales(conn: Any) -> list[tuple]:
+    sql = """
+    SELECT s.name, COALESCE(SUM(pu.price), 0) as total_sales
+    FROM ecommerce.stores s
+    LEFT JOIN ecommerce.products p ON s.store_id = p.store_id
+    LEFT JOIN ecommerce.purchases pu ON p.product_id = pu.product_id
+    WHERE s.store_id = (SELECT store_id FROM ecommerce.stores ORDER BY random() LIMIT 1)
+    GROUP BY s.name;
+    """
+    with pgtransaction(conn) as tx:
+        tx.execute(sql)
+        result = tx.fetchall()
+    return result

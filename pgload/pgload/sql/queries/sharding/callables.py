@@ -41,17 +41,12 @@ def init_database(conn: Any) -> None:
             REFERENCES ecommerce.products (store_id, product_id)
     );
 
-    SELECT create_distributed_table('ecommerce.stores', 'store_id');
+    SELECT create_reference_table('ecommerce.stores');
     SELECT create_distributed_table('ecommerce.products', 'store_id');
     SELECT create_distributed_table('ecommerce.purchases', 'store_id');
     """
     with pgtransaction(conn) as tx:
         tx.execute(sql)
-
-
-def drop_database(conn: Any) -> None:
-    with pgtransaction(conn) as tx:
-        tx.execute("DROP SCHEMA IF EXISTS ecommerce CASCADE;")
 
 
 def insert_test_data(conn: Any, scale: int, seed: int) -> None:
@@ -107,40 +102,28 @@ def insert_test_data(conn: Any, scale: int, seed: int) -> None:
             tx.copy_expert("COPY ecommerce.purchases FROM STDIN", write2buffer(batch))
 
 
-def get_random_purchase(conn: Any) -> tuple:
+def get_random_store_purchases(conn: Any) -> list[tuple]:
     sql = """
-    SELECT *
-    FROM ecommerce.purchases
-    ORDER BY RANDOM()
-    LIMIT 1;
+    SELECT p.name, pu.purchase_id, pu.price, pu.purchased_at
+    FROM ecommerce.products p
+    JOIN ecommerce.purchases pu ON p.store_id = pu.store_id AND p.product_id = pu.product_id
+    WHERE p.store_id = (SELECT store_id FROM ecommerce.stores ORDER BY random() LIMIT 1);
     """
     with pgtransaction(conn) as tx:
         tx.execute(sql)
-        result = tx.fetchone()
+        result = tx.fetchall()
     return result
 
 
-def get_random_store(conn: Any) -> tuple:
+def get_random_store_total_sales(conn: Any) -> list[tuple]:
     sql = """
-    SELECT *
-    FROM ecommerce.stores
-    ORDER BY RANDOM()
-    LIMIT 1;
+    SELECT s.name, SUM(pu.price) as total_sales
+    FROM ecommerce.stores s
+    JOIN ecommerce.purchases pu ON s.store_id = pu.store_id
+    WHERE s.store_id = (SELECT store_id FROM ecommerce.stores ORDER BY random() LIMIT 1)
+    GROUP BY s.name;
     """
     with pgtransaction(conn) as tx:
         tx.execute(sql)
-        result = tx.fetchone()
-    return result
-
-
-def get_random_product(conn: Any) -> tuple:
-    sql = """
-    SELECT *
-    FROM ecommerce.products
-    ORDER BY RANDOM()
-    LIMIT 1;
-    """
-    with pgtransaction(conn) as tx:
-        tx.execute(sql)
-        result = tx.fetchone()
+        result = tx.fetchall()
     return result

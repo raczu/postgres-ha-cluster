@@ -1,8 +1,8 @@
 from enum import StrEnum
 
+from pgload.sql.queries.sharding import ShardingQueries
+from pgload.sql.queries.smr import SMRQueries
 from pgload.sql.query import Queries, Query, QueryType
-from pgload.sql.sharding import ShardingQueries
-from pgload.sql.smr import SMRQueries
 from pgload.sql.utils import pgconnection
 from pgload.sql.worker import SQLWorker, SQLWorkerManager
 
