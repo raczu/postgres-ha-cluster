@@ -42,7 +42,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P5B30A892B26BB32D"
+        "uid": "P5C2F308893FF2013"
       },
       "fieldConfig": {
         "defaults": {
@@ -110,7 +110,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P5B30A892B26BB32D"
+        "uid": "P5C2F308893FF2013"
       },
       "fieldConfig": {
         "defaults": {
@@ -195,7 +195,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P5B30A892B26BB32D"
+        "uid": "P5C2F308893FF2013"
       },
       "fieldConfig": {
         "defaults": {
@@ -277,7 +277,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P5B30A892B26BB32D"
+        "uid": "P5C2F308893FF2013"
       },
       "fieldConfig": {
         "defaults": {
@@ -373,7 +373,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P5B30A892B26BB32D"
+        "uid": "P5C2F308893FF2013"
       },
       "fieldConfig": {
         "defaults": {
@@ -479,7 +479,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P5B30A892B26BB32D"
+        "uid": "P5C2F308893FF2013"
       },
       "fieldConfig": {
         "defaults": {
@@ -575,7 +575,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P5B30A892B26BB32D"
+        "uid": "P5C2F308893FF2013"
       },
       "fieldConfig": {
         "defaults": {
@@ -736,5 +736,5 @@
   "timezone": "browser",
   "title": "pgbench-ha-smr",
   "uid": "6fb8abe9-8e88-4c42-9475-8b4ace1243d9",
-  "version": 47
+  "version": 1
 }

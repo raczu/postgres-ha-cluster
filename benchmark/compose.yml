@@ -33,6 +33,7 @@ services:
       - PGLOAD_READ_DSN=postgresql://dba:sql@localhost:5433/ecommerce
       - PGLOAD_SCALE=8
       - PGLOAD_CLIENTS=48
+      - PGLOAD_SEED=508516811
 
 volumes:
   prom-data:
