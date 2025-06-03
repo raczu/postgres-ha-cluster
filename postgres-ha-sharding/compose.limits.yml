@@ -1,0 +1,36 @@
+services:
+  coord-0:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+
+  coord-1:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+
+  worker-00:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+
+  worker-01:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+
+  worker-10:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+
+  worker-11:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"

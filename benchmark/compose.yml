@@ -32,7 +32,7 @@ services:
       - PGLOAD_WRITE_DSN=postgresql://dba:sql@localhost:5432/ecommerce
       - PGLOAD_READ_DSN=postgresql://dba:sql@localhost:5433/ecommerce
       - PGLOAD_SCALE=8
-      - PGLOAD_CLIENTS=32
+      - PGLOAD_CLIENTS=48
 
 volumes:
   prom-data:
