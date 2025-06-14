@@ -2,6 +2,6 @@ services:
   pgload:
     environment:
       - PGLOAD_MODE=sharding
-      - PGLOAD_NODES_DSN=postgresql://dba:sql@localhost:5432/ecommerce
-      - PGLOAD_WRITE_DSN=postgresql://dba:sql@localhost:5432/ecommerce
-      - PGLOAD_READ_DSN=postgresql://dba:sql@localhost:5432/ecommerce
+      - PGLOAD_NODES_DSN=postgresql://dba:sql@haproxy:5432/ecommerce
+      - PGLOAD_WRITE_DSN=postgresql://dba:sql@haproxy:5432/ecommerce
+      - PGLOAD_READ_DSN=postgresql://dba:sql@haproxy:5432/ecommerce

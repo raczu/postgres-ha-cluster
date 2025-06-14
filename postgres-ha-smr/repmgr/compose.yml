@@ -115,3 +115,4 @@ volumes:
 networks:
   pg-network:
     driver: bridge
+    external: true
