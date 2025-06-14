@@ -167,10 +167,10 @@
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(sum(increase(pgload_query_total[$__range])) or vector(0)) - (sum(increase(pgload_query_error_total[$__range])) or vector(0))",
+          "expr": "sum(pgload_query_total or vector(0)) - sum(pgload_query_error_total or vector(0))",
           "format": "time_series",
           "instant": false,
-          "legendFormat": "Succedded",
+          "legendFormat": "Succeeded",
           "range": true,
           "refId": "A"
         },
@@ -510,7 +510,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-1m",
     "to": "now"
   },
   "timepicker": {

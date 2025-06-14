@@ -167,10 +167,10 @@
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(sum(increase(pgload_query_total[$__range])) or vector(0)) - (sum(increase(pgload_query_error_total[$__range])) or vector(0))",
+          "expr": "sum(pgload_query_total or vector(0)) - sum(pgload_query_error_total or vector(0))",
           "format": "time_series",
           "instant": false,
-          "legendFormat": "Succedded",
+          "legendFormat": "Succeeded",
           "range": true,
           "refId": "A"
         },
@@ -180,7 +180,7 @@
             "uid": "P5B30A892B26BB32D"
           },
           "editorMode": "code",
-          "expr": "sum(increase(pgload_query_error_total[$__range])) or vector(0)",
+          "expr": "sum(pgload_query_error_total or vector(0))",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -718,7 +718,7 @@
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-1m",
     "to": "now"
   },
   "timepicker": {
