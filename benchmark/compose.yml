@@ -13,9 +13,17 @@ services:
       - "3000:3000"
     networks:
       - pgload-network
+    environment:
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
     volumes:
       - ./provisioning:/etc/grafana/provisioning
       - ./dashboards:/var/lib/grafana/dashboards
+
+  renderer:
+    image: docker.io/grafana/grafana-image-renderer:3.12.6
+    networks:
+      - pgload-network
 
   pgload:
     image: pgload:0.1.0
@@ -26,11 +34,11 @@ services:
     environment:
       - PGLOAD_MODE=replication
       - PGLOAD_NODES_DSN=
-        postgresql://dba:sql@localhost:5432/ecommerce
-        postgresql://dba:sql@localhost:5433/ecommerce
+        postgresql://dba:sql@192.168.100.103:5432/ecommerce
+        postgresql://dba:sql@192.168.100.103:5433/ecommerce
       - PGLOAD_HEALTH_CHECK_TIMEOUT=240
-      - PGLOAD_WRITE_DSN=postgresql://dba:sql@localhost:5432/ecommerce
-      - PGLOAD_READ_DSN=postgresql://dba:sql@localhost:5433/ecommerce
+      - PGLOAD_WRITE_DSN=postgresql://dba:sql@192.168.100.103:5432/ecommerce
+      - PGLOAD_READ_DSN=postgresql://dba:sql@192.168.100.103:5433/ecommerce
       - PGLOAD_SCALE=8
       - PGLOAD_CLIENTS=48
       - PGLOAD_SEED=508516811
