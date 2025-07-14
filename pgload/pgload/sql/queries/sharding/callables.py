@@ -41,7 +41,7 @@ def init_database(conn: Any) -> None:
             REFERENCES ecommerce.products (store_id, product_id)
     );
 
-    SELECT create_reference_table('ecommerce.stores');
+    SELECT create_distributed_table('ecommerce.stores', 'store_id');
     SELECT create_distributed_table('ecommerce.products', 'store_id');
     SELECT create_distributed_table('ecommerce.purchases', 'store_id');
     """

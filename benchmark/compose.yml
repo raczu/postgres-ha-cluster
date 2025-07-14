@@ -48,5 +48,7 @@ volumes:
 
 networks:
   pg-network:
-    driver: bridge
+    # Make sure that the network is created externally. This should be done
+    # after running compose file for specific cluster setup.
+    name: pg-network
     external: true

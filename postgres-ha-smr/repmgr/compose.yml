@@ -114,5 +114,5 @@ volumes:
 
 networks:
   pg-network:
+    name: pg-network
     driver: bridge
-    external: true
