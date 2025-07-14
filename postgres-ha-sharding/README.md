@@ -1,1 +1,0 @@
-# Citus cluster with sharding
