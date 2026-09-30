@@ -5,17 +5,27 @@ ready-to-use environment for testing and benchmarking various PostgreSQL high av
 This setup is intended for testing purposes and is not recommended for production use. However, it can be used as a
 starting point for building your own production-ready PostgreSQL HA cluster.
 
+> [!WARNING]
+> 
+> This repository relies on Bitnami container images. Due to VMware's policy changes (see 
+> [issue #35164](https://github.com/bitnami/charts/issues/35164)), some previously free images and updates were moved to a 
+> paid tier.
+
 The repository includes multiple Docker Compose files, each tailored for a specific cluster topology. You will find
 these configurations in the `postgres-ha-smr` and `postgres-ha-sharding` directories. Below are simplified diagrams
 of the prepared cluster topologies.
 
 ### Single Master Replication (SMR)
 
-![Single Master Replication (SMR)](assets/postgres-ha-smr.png)
+<div align="center">
+    <img src="assets/postgres-ha-smr.png" alt="Single Master Replication (SMR)" />
+</div>
 
 ### Sharding with Citus
 
-![Sharding with Citus](assets/postgres-ha-sharding.png)
+<div align="center">
+    <img src="assets/postgres-ha-sharding.png" alt="Sharding with Citus" />
+</div>
 
 ## Benchmarking with pgload
 
